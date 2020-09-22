@@ -12,12 +12,15 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Drawing;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using Newtonsoft.Json;
 using Ricoh;
 using Ricoh.CameraController;
 using Path = System.Windows.Shapes.Path;
+using Newtonsoft.Json.Linq;
 
 namespace RicohWPF
 {
@@ -28,9 +31,15 @@ namespace RicohWPF
 
     public partial class MainWindow : Window
     {
+        private VM _vm;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            _vm = new VM();
+
+            DataContext = _vm;
         }
 
         private void Createthumnail(object sender, RoutedEventArgs e)
@@ -46,8 +55,57 @@ namespace RicohWPF
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        public async void PLEASE()
         {
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    JObject body = new JObject();
+                    body.Add(new JProperty("name", "camera.getLivePreview"));
+                    body.Add(new JProperty("parameters", new JObject()));
+
+                    HttpContent content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8,
+                        "application/json");
+
+                    HttpResponseMessage response =
+                        await client.PostAsync("http://192.168.1.1:80/osc/commands/execute", content);
+
+
+                    JObject bodykke = new JObject();
+                    bodykke.Add(new JProperty("name", "camera.takePicture"));
+                    bodykke.Add(new JProperty("parameters", new JObject()));
+                    
+                    content = new StringContent(JsonConvert.SerializeObject(bodykke), Encoding.UTF8, "application/json");
+                    
+                    response =
+                        await client.PostAsync("http://192.168.1.1:80/osc/commands/execute", content);
+
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        HttpContent responseContent = response.Content;
+
+                        var stream = await responseContent.ReadAsStringAsync();
+
+
+
+                        //BinaryReader reader =
+                        //    new BinaryReader(new BufferedStream(stream), new System.Text.ASCIIEncoding());
+
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var kek = ex;
+                }
+            }
+        }
+
+        public async void GOODTRY()
+        {
+            int i = 0;
+
             string url = "http://192.168.1.1:80/osc/commands/execute";
             var request = HttpWebRequest.Create(url);
             HttpWebResponse response = null;
@@ -57,7 +115,7 @@ namespace RicohWPF
 
             byte[] postBytes = Encoding.Default.GetBytes("{ \"name\": \"camera.getLivePreview\"}");
             request.ContentLength = postBytes.Length;
-            
+
 
 
             Stream reqStream = request.GetRequestStream();
@@ -67,6 +125,8 @@ namespace RicohWPF
 
             //resp.ContentType = "multipart/x-mixed-replace";
 
+            var kek = 0;
+
             var stream = resp.GetResponseStream();
 
             BinaryReader reader = new BinaryReader(new BufferedStream(stream), new System.Text.ASCIIEncoding());
@@ -74,73 +134,94 @@ namespace RicohWPF
             List<byte> imageBytes = new List<byte>();
             bool isLoadStart = false; // 画像の頭のバイナリとったかフラグ
             byte oldByte = 0; // 1つ前のByteデータを格納する
-            while (true)
+            await Task.Run(() =>
             {
-                byte byteData = reader.ReadByte();
-
-                if (!isLoadStart)
+                while (true)
                 {
-                    if (oldByte == 0xFF)
-                    {
-                        // 画像の最初のバイナリ
-                        imageBytes.Add(0xFF);
-                    }
-                    if (byteData == 0xD8)
-                    {
-                        // 画像の２番目のバイナリ
-                        imageBytes.Add(0xD8);
+                    byte byteData = reader.ReadByte();
 
-                        // 画像の頭をとったので終了バイナリを獲得するまでとる
-                        isLoadStart = true;
+                    if (!isLoadStart)
+                    {
+                        if (oldByte == 0xFF)
+                        {
+                            // Первый двоичный файл изображения
+                            imageBytes.Add(0xFF);
+                        }
+
+                        if (byteData == 0xD8)
+                        {
+                            // Второй двоичный файл изображения
+                            imageBytes.Add(0xD8);
+
+                            // Я взял заголовок изображения, поэтому беру его, пока не получу конечный двоичный файл
+                            isLoadStart = true;
+                        }
                     }
+                    else
+                    {
+                        // Поместите в массив двоичных файлов изображений
+                        imageBytes.Add(byteData);
+
+                        // Когда байт является конечным байтом
+                        // 0xFF -> 0xD9В случае конечного байта
+                        if (oldByte == 0xFF && byteData == 0xD9)
+                        {
+                            // Потому что это конечный байт изображения
+                            // Вы можете создать изображение из накопленных здесь байтов и создать текстуру.
+                            // Отразить изображение в байтах в текстуре
+                            SetImage(imageBytes.ToArray());
+                            // Оставьте imageBytes пустым
+
+                            imageBytes.Clear();
+                            //if (i == 10)
+                            //{
+                            //    reader.Close();
+                            //    break;
+                            //}
+                            //else
+                            //{
+                            //    i++;
+                            //}
+
+                            // Вернитесь к бинарному циклу сбора данных в начале изображения.
+                            isLoadStart = false;
+
+                        }
+                    }
+
+                    oldByte = byteData;
                 }
-                else
-                {
-                    // 画像バイナリの配列にいれます
-                    imageBytes.Add(byteData);
+            });
 
-                    // byteが終了byteだった場合
-                    // 0xFF -> 0xD9の場合、終了byte
-                    if (oldByte == 0xFF && byteData == 0xD9)
-                    {
-                        // 画像の終了byteなので
-                        // ここで溜まったbyteから画像を生成し、テクスチャの作成をすることができる
-                        // imageBytesをテクスチャに反映して
-                        // imageBytesを空にしておく
+        }
 
-                        // 画像の頭のバイナリ取得のループに戻る
-                        isLoadStart = false;
-                    }
-                }
-                oldByte = byteData;
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            //PLEASE();
 
-                SetImage(imageBytes.ToArray());
-            }
+            GOODTRY();
         }
 
 
         public async void SetImage(byte[] array)
         {
-            BitmapImage bi;
-            //var temp = ConvertPixelFormat(temp);
-
-            if(array.Length == 0)
-                return;
-
-            await Task.Run(() =>
+            if (array == null || array.Length == 0) return;
+            var image = new BitmapImage();
+            using (var mem = new MemoryStream(array))
             {
-                try
-                {
-                    var temp = new Bitmap(new MemoryStream(array));
+                mem.Position = 0;
+                image.BeginInit();
+                image.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.UriSource = null;
+                image.StreamSource = mem;
+                image.EndInit();
+            }
+            image.Freeze();
 
-                    bi = ToBitmapImage(temp);
-                    bi.Freeze();
+            _vm.SetImage(image);
 
-                    Dispatcher.BeginInvoke(new ThreadStart(delegate { KekImage.Source = bi; }));
-                }
-                catch { }
-            });
-            
+            await Task.Delay(100);
         }
 
         private BitmapImage ToBitmapImage(Bitmap bitmap)
@@ -153,6 +234,11 @@ namespace RicohWPF
             bi.StreamSource = ms;
             bi.EndInit();
             return bi;
+        }
+
+        private void ShowNext_OnClick(object sender, RoutedEventArgs e)
+        {
+            _vm.ShowNext();
         }
     }
 }

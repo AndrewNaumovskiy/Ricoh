@@ -19,9 +19,14 @@ namespace RicohXamarin
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SpherePage : ContentPage
     {
+        private VM _vm;
+
         public SpherePage()
         {
             InitializeComponent();
+
+            _vm = new VM();
+            BindingContext = _vm;
         }
 
         private void GetLive_OnClicked(object sender, EventArgs e)
@@ -31,88 +36,89 @@ namespace RicohXamarin
 
         public async void StartLivePreview()
         {
-            using (HttpClient client = new HttpClient())
+            string url = "http://192.168.1.1:80/osc/commands/execute";
+
+            var request = HttpWebRequest.Create(url);
+            HttpWebResponse response = null;
+            request.Method = "POST";
+            request.Timeout = (int)(30 * 10000f);
+            request.ContentType = "application/json;charset=utf-8";
+
+            byte[] postBytes = Encoding.Default.GetBytes("{ \"name\": \"camera.getLivePreview\"}");
+            request.ContentLength = postBytes.Length;
+
+            Stream reqStream = request.GetRequestStream();
+            reqStream.Write(postBytes, 0, postBytes.Length);
+            reqStream.Close();
+            var resp = request.GetResponse();
+
+            var stream = resp.GetResponseStream();
+
+            BinaryReader reader = new BinaryReader(new BufferedStream(stream), new System.Text.ASCIIEncoding());
+
+            List<byte> imageBytes = new List<byte>();
+            bool isLoadStart = false; // 画像の頭のバイナリとったかフラグ
+            byte oldByte = 0; // 1つ前のByteデータを格納する
+
+            await Task.Run(() =>
             {
-                try
+                while (true)
                 {
-                    JObject body = new JObject();
-                    body.Add(new JProperty("name", "camera.getLivePreview"));
-                    body.Add(new JProperty("parameters", new JObject()));
+                    byte byteData = reader.ReadByte();
 
-                    HttpContent content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
-
-                    //HttpContent content =  new MultipartContent("x-mixed-replace");
-
-                    HttpResponseMessage response = await client.PostAsync("http://192.168.0.153:80/osc/commands/execute", content);
-
-                    response.Content = new MultipartContent("x-mixed-replace");// "Content-Type", "multipart/x-mixed-replace");
-
-                    if (response.StatusCode == HttpStatusCode.OK)
+                    if (!isLoadStart)
                     {
-                        StatusLabel.Text = "Connected";
+                        if (oldByte == 0xFF)
+                        {
+                            // Первый двоичный файл изображения
+                            imageBytes.Add(0xFF);
+                        }
 
-                        
+                        if (byteData == 0xD8)
+                        {
+                            // Второй двоичный файл изображения
+                            imageBytes.Add(0xD8);
 
-                        HttpContent responseContent = response.Content;
-                        var stream = await responseContent.ReadAsStreamAsync();
-
-                        BinaryReader reader = new BinaryReader(new BufferedStream(stream), new System.Text.ASCIIEncoding());
-
-                        //List<byte> imageBytes = new List<byte>();
-                        //bool isLoadStart = false;
-                        //byte oldByte = 0;
-                        //while (true)
-                        //{
-                        //    byte byteData = reader.ReadByte();
-                        //
-                        //    if (!isLoadStart)
-                        //    {
-                        //        if (oldByte == 0xFF)
-                        //        {
-                        //            imageBytes.Add(0xFF);
-                        //        }
-                        //
-                        //        if (byteData == 0xD8)
-                        //        {
-                        //            imageBytes.Add(0xD8);
-                        //
-                        //            isLoadStart = true;
-                        //        }
-                        //    }
-                        //    else
-                        //    {
-                        //        imageBytes.Add(byteData);
-                        //
-                        //        if (oldByte == 0xFF && byteData == 0xD9)
-                        //        {
-                        //            isLoadStart = false;
-                        //        }
-                        //    }
-                        //
-                        //    oldByte = byteData;
-                        //    byteArraytoImage(imageBytes.ToArray());
-                        //}
-                        //
-                        ////SuccessShot(json);
+                            // Я взял заголовок изображения, поэтому беру его, пока не получу конечный двоичный файл
+                            isLoadStart = true;
+                        }
                     }
                     else
                     {
-                        StatusLabel.Text = "Not connected";
+                        // Поместите в массив двоичных файлов изображений
+                        imageBytes.Add(byteData);
+
+                        // Когда байт является конечным байтом
+                        // 0xFF -> 0xD9В случае конечного байта
+                        if (oldByte == 0xFF && byteData == 0xD9)
+                        {
+                            // Потому что это конечный байт изображения
+                            // Вы можете создать изображение из накопленных здесь байтов и создать текстуру.
+                            // Отразить изображение в байтах в текстуре
+                            SetImage(imageBytes.ToArray());
+                            // Оставьте imageBytes пустым
+
+                            imageBytes.Clear();
+                            
+                            // Вернитесь к бинарному циклу сбора данных в начале изображения.
+                            isLoadStart = false;
+
+                        }
                     }
+
+                    oldByte = byteData;
                 }
-                catch (Exception ex)
-                {
-                    StatusLabel.Text = "Not connected";
-                    var kek = ex;
-                }
-            }
+            });
         }
 
-        public void byteArraytoImage(byte[] arr)
+        public void SetImage(byte[] arr)
         {
-            string imreBase64Data = Convert.ToBase64String(arr);
-            string imgDataUrl = string.Format("data:image/png;base64,{0}", imreBase64Data);
-            LivePreview.Source = imgDataUrl;
+            if (arr == null || arr.Length == 0) return;
+
+            var image = ImageSource.FromStream(() => new MemoryStream(arr));
+
+            _vm.SetImage(image);
+            //LivePreview.Source = image;
         }
     }
 }

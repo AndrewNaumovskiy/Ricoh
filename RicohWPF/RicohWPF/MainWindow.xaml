@@ -13,7 +13,7 @@
                 Height="30"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"/>
-        <Image x:Name="KekImage"/>
+        <Image Source="{Binding Image, Mode=TwoWay}"/>
 
     </StackPanel>
 </Window>

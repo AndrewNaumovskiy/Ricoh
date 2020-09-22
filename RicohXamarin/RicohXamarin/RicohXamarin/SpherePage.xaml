@@ -12,7 +12,9 @@
             <Button Text="Get live preview"
                     Clicked="GetLive_OnClicked"/>
 
-            <Image x:Name="LivePreview"/>
+            <Image Source="{Binding Image, Mode=TwoWay}"
+                   VerticalOptions="FillAndExpand"
+                   HorizontalOptions="FillAndExpand"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

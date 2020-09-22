@@ -47,7 +47,7 @@ namespace RicohXamarin
             {
                 using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    request.RequestUri = new Uri("http://192.168.0.153:80/osc/state");
+                    request.RequestUri = new Uri("http://192.168.1.1:80/osc/state");
                     request.Method = HttpMethod.Post;
                     request.Headers.Add("Accept", "application/json");
 
@@ -110,7 +110,7 @@ namespace RicohXamarin
 
                     HttpContent content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
-                    HttpResponseMessage response = await client.PostAsync("http://192.168.0.153:80/osc/commands/execute", content);
+                    HttpResponseMessage response = await client.PostAsync("http://192.168.1.1:80/osc/commands/execute", content);
 
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
@@ -163,7 +163,7 @@ namespace RicohXamarin
 
                     HttpContent content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
-                    HttpResponseMessage response = await client.PostAsync("http://192.168.0.153:80/osc/commands/status", content);
+                    HttpResponseMessage response = await client.PostAsync("http://192.168.1.1:80/osc/commands/status", content);
 
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
