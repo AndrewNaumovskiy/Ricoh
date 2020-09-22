@@ -5,7 +5,7 @@ using System.Linq;
 using Foundation;
 using UIKit;
 
-namespace RICOHTest.iOS
+namespace RicohXamarin.iOS
 {
     public class Application
     {

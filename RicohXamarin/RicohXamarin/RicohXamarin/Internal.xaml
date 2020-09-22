@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
+             ios:Page.UseSafeArea="true"
+             x:Class="RicohXamarin.Internal">
+    <ContentPage.Content>
+        <ScrollView VerticalScrollBarVisibility="Always">
+            <StackLayout>
+                <Button Text="CheckForConnect"
+                        Clicked="Button_OnClicked"/>
+
+                <Label x:Name="StatusLabel"/>
+
+                <Label x:Name="BatteryLabel"/>
+
+                <Button Text="Shot"
+                        Clicked="Shot_OnClicked"/>
+
+                <Label x:Name="shotStatus"/>
+
+                <Label x:Name="imageUrl"/>
+
+                <Button Text="Sphere"
+                        Clicked="OpenSphere_OnClicked"/>
+
+                <Image x:Name="image"
+                       VerticalOptions="CenterAndExpand"
+                       HorizontalOptions="CenterAndExpand"/>
+
+                
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

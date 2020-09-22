@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
+             ios:Page.UseSafeArea="true"
+             x:Class="RicohXamarin.MainPage">
+
+    <ScrollView>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="200"/>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="80"/>
+            </Grid.RowDefinitions>
+            <Frame Margin="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Frame BackgroundColor="Pink"/>
+                    <StackLayout Grid.Column="1"
+                                 Margin="20,40">
+                        <Label Text="AB123XY"
+                               FontSize="20"/>
+                        <Label Text="ABCDEFGH12314"
+                               FontSize="16"/>
+                    </StackLayout>
+                </Grid>
+            </Frame>
+
+            <Frame Grid.Row="1"
+                   Margin="10">
+                <Button Text="Videos"
+                        FontSize="16"
+                        TextColor="Black"/>
+            </Frame>
+            <Frame Grid.Row="2"
+                   Margin="10">
+                <Button Text="Handheld"
+                        FontSize="16"
+                        TextColor="Black"/>
+            </Frame>
+            <Frame Grid.Row="3"
+                   Margin="10">
+                <Button Text="Internal"
+                        FontSize="16"
+                        TextColor="Black"
+                        Clicked="Button_OnClicked"/>
+            </Frame>
+            <Frame Grid.Row="4"
+                   Margin="10">
+                <Button Text="External?!"
+                        FontSize="16"
+                        TextColor="Black"/>
+            </Frame>
+        </Grid>
+    </ScrollView>
+</ContentPage>
