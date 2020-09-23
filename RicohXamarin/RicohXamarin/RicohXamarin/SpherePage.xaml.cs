@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using Foundation;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using UIKit;
 using Xamarin.Forms;
+using Xamarin.Forms.Internals;
 using Xamarin.Forms.Xaml;
 
 namespace RicohXamarin
@@ -20,6 +15,8 @@ namespace RicohXamarin
     public partial class SpherePage : ContentPage
     {
         private VM _vm;
+
+        private SphereApp app;
 
         public SpherePage()
         {
@@ -31,7 +28,11 @@ namespace RicohXamarin
 
         private void GetLive_OnClicked(object sender, EventArgs e)
         {
-            StartLivePreview();
+            //StartLivePreview();
+
+            StartSphere();
+
+           // StartLivePreview();
         }
 
         public async void StartLivePreview()
@@ -96,6 +97,7 @@ namespace RicohXamarin
                             // Вы можете создать изображение из накопленных здесь байтов и создать текстуру.
                             // Отразить изображение в байтах в текстуре
                             SetImage(imageBytes.ToArray());
+                            break;
                             // Оставьте imageBytes пустым
 
                             imageBytes.Clear();
@@ -115,10 +117,19 @@ namespace RicohXamarin
         {
             if (arr == null || arr.Length == 0) return;
 
-            var image = ImageSource.FromStream(() => new MemoryStream(arr));
+            //app.SetImage(arr);
 
-            _vm.SetImage(image);
+            //var image = ImageSource.FromStream(() => new MemoryStream(arr));
+            //
+            //_vm.SetImage(image);
             //LivePreview.Source = image;
         }
+
+        public async void StartSphere()
+        {
+            app = await UrhoSurface.Show<SphereApp>(new Urho.ApplicationOptions(assetsFolder: "Data"));
+        }
+
+        
     }
 }

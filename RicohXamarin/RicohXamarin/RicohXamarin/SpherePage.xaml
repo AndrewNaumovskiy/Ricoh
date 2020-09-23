@@ -3,18 +3,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:RicohXamarin;assembly=RicohXamarin"
+             xmlns:urho="clr-namespace:Urho.Forms;assembly=UrhoSharp.Forms"
              mc:Ignorable="d"
              x:Class="RicohXamarin.SpherePage">
     <ContentPage.Content>
         <StackLayout>
-            <Label x:Name="StatusLabel"/>
 
             <Button Text="Get live preview"
-                    Clicked="GetLive_OnClicked"/>
+                        Clicked="GetLive_OnClicked"/>
 
-            <Image Source="{Binding Image, Mode=TwoWay}"
-                   VerticalOptions="FillAndExpand"
-                   HorizontalOptions="FillAndExpand"/>
+            <urho:UrhoSurface x:Name="UrhoSurface" VerticalOptions="FillAndExpand" />
+
+            <!--<Grid VerticalOptions="FillAndExpand"
+                      HorizontalOptions="FillAndExpand">
+                    <local:PinchToZoomContainer>
+                        <local:PinchToZoomContainer.Content>
+                            <Image Source="{Binding Image, Mode=TwoWay}"/>
+                        </local:PinchToZoomContainer.Content>
+                    </local:PinchToZoomContainer>
+                </Grid>-->
+
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
