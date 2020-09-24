@@ -6,14 +6,19 @@
              xmlns:local="clr-namespace:RicohXamarin;assembly=RicohXamarin"
              xmlns:urho="clr-namespace:Urho.Forms;assembly=UrhoSharp.Forms"
              mc:Ignorable="d"
-             x:Class="RicohXamarin.SpherePage">
+             x:Class="RicohXamarin.SpherePage"
+             NavigationPage.HasNavigationBar="True">
     <ContentPage.Content>
         <StackLayout>
 
             <Button Text="Get live preview"
-                        Clicked="GetLive_OnClicked"/>
+                        Clicked="GetLive_OnClicked"
+                        Margin="0,30,0,0"/>
+
 
             <urho:UrhoSurface x:Name="UrhoSurface" VerticalOptions="FillAndExpand" />
+
+            <!--<Image Source="{Binding Image}"/>-->
 
             <!--<Grid VerticalOptions="FillAndExpand"
                       HorizontalOptions="FillAndExpand">

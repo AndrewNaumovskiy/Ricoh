@@ -26,13 +26,31 @@ namespace RicohXamarin
             BindingContext = _vm;
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            StartSphere();
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            app.Dispose();
+        }
+
         private void GetLive_OnClicked(object sender, EventArgs e)
         {
             //StartLivePreview();
+            
+            app.StartConnection();
 
-            StartSphere();
 
-           // StartLivePreview();
+
+            //app.SetImage(new byte[]{0xff});
+
+            //StartLivePreview();
         }
 
         public async void StartLivePreview()
@@ -128,6 +146,7 @@ namespace RicohXamarin
         public async void StartSphere()
         {
             app = await UrhoSurface.Show<SphereApp>(new Urho.ApplicationOptions(assetsFolder: "Data"));
+            //await app.CreateScene();
         }
 
         
