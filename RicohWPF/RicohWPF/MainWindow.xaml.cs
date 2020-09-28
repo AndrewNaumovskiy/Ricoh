@@ -200,11 +200,11 @@ namespace RicohWPF
         {
             //PLEASE();
 
-            //GOODTRY();
+            GOODTRY();
 
             // sphere view of image
 
-            Sphere();
+            //Sphere();
         }
 
 

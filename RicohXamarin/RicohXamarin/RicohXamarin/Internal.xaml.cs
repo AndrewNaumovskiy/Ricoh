@@ -19,20 +19,39 @@ namespace RicohXamarin
     {
         private SpherePage spherePage;
 
+        private InternalViewModel _vm;
+
         public Internal()
         {
             InitializeComponent();
 
-            spherePage = new SpherePage();
+            _vm = new InternalViewModel();
+
+            BindingContext = _vm;
+            
+            CheckForCamera();
+
+            //OpenImage();
+            //spherePage = new SpherePage();
         }
 
+        private int i = 0;
         protected override void OnAppearing()
         {
             base.OnAppearing();
 
             //NotifyClickWifiButton();
+            if (i++ == 0)
+            {
+                _vm.StartConnectionCheckQueue();
+            }
+        }
 
-            CheckForCamera();
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            _vm._queueRunning = false;
         }
 
         public async void NotifyClickWifiButton()
@@ -59,23 +78,28 @@ namespace RicohXamarin
 
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
-                            StatusLabel.Text = "Connected";
+                            //StatusLabel.Text = "Connected";
                             HttpContent responseContent = response.Content;
                             var json = await responseContent.ReadAsStringAsync();
                             SetCameraValues(json);
                         }
                         else
                         {
-                            StatusLabel.Text = "Not connected";
+                            //StatusLabel.Text = "Not connected";
                         }
                     }
                     catch (Exception e)
                     {
-                        StatusLabel.Text = "Not connected";
+                       //StatusLabel.Text = "Not connected";
                         var kek = e;
                     }
                 }
             }
+        }
+
+        public void OpenImage()
+        {
+            _vm.SetImage();
         }
 
         private void Button_OnClicked(object sender, EventArgs e)
@@ -90,7 +114,7 @@ namespace RicohXamarin
 
             double batteryas = double.TryParse(battery, out batteryas) ? batteryas : 0;
 
-            BatteryLabel.Text = batteryas * 100 + "%";
+            //BatteryLabel.Text = batteryas * 100 + "%";
         }
 
         private void Shot_OnClicked(object sender, EventArgs e)
@@ -121,12 +145,12 @@ namespace RicohXamarin
                     }
                     else
                     {
-                        StatusLabel.Text = "Not connected";
+                        //StatusLabel.Text = "Not connected";
                     }
                 }
                 catch (Exception e)
                 {
-                    StatusLabel.Text = "Not connected";
+                   // StatusLabel.Text = "Not connected";
                     var kek = e;
                 }
             }
@@ -174,12 +198,12 @@ namespace RicohXamarin
                     }
                     else
                     {
-                        StatusLabel.Text = "Not connected";
+            //            StatusLabel.Text = "Not connected";
                     }
                 }
                 catch (Exception e)
                 {
-                    StatusLabel.Text = "Not connected";
+            //        StatusLabel.Text = "Not connected";
                     var kek = e;
                 }
             }
@@ -193,9 +217,9 @@ namespace RicohXamarin
 
             var url = json.SelectToken("results").SelectToken("fileUrl").ToString();
 
-            shotStatus.Text = status;
+            //shotStatus.Text = status;
 
-            imageUrl.Text = url;
+            //imageUrl.Text = url;
 
             DownloadImage(url);
         }
@@ -217,12 +241,12 @@ namespace RicohXamarin
                     }
                     else
                     {
-                        StatusLabel.Text = "Not connected";
+            //            StatusLabel.Text = "Not connected";
                     }
                 }
                 catch (Exception e)
                 {
-                    StatusLabel.Text = "Not connected";
+             //       StatusLabel.Text = "Not connected";
                     var kek = e;
                 }
             }
@@ -233,7 +257,7 @@ namespace RicohXamarin
         public void CreateImage(byte[] arr)
         {
             Image = ImageSource.FromStream(() => new MemoryStream(arr));
-            image.Source = Image;
+            //image.Source = Image;
         }
 
         private void OpenSphere_OnClicked(object sender, EventArgs e)

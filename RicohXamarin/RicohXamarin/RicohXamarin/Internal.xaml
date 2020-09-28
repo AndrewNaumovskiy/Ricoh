@@ -5,35 +5,128 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
-             ios:Page.UseSafeArea="true"
-             x:Class="RicohXamarin.Internal">
+             ios:Page.UseSafeArea="false"
+             x:Class="RicohXamarin.Internal"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="Black">
     <ContentPage.Content>
-        <ScrollView VerticalScrollBarVisibility="Always">
-            <StackLayout>
-                <Button Text="CheckForConnect"
+        <Grid>
+            <Image Source="{Binding Image}"
+                   VerticalOptions="FillAndExpand"
+                   HorizontalOptions="FillAndExpand"/>
+
+            <Grid Margin="30,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="6*"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Frame BackgroundColor="{Binding BackgroundColor}"
+                       CornerRadius="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <Label Text="{Binding BatteryPercent}"
+                               TextColor="White"
+                               VerticalOptions="Center"/>
+                        <Label Text="true"
+                               TextColor="White"
+                               VerticalOptions="Start"
+                               IsVisible="{Binding Charging}"/>
+
+                        <Button Text="Gear"
+                               Grid.Row="1"
+                               TextColor="White"
+                               VerticalOptions="Center"
+                               Command="{Binding OpenCameraPresetCommand}"/>
+                        <Button Text="&lt;"
+                                Grid.Row="2"
+                                TextColor="White"
+                                VerticalOptions="Center"
+                                Command="{Binding PopPageCommand}"/>
+                    </Grid>
+                </Frame>
+
+                <Frame BackgroundColor="{Binding BackgroundColor}"
+                       Grid.Column="2"
+                       CornerRadius="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="2*"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <Button Text="Gear"
+                                TextColor="White"
+                                Command="{Binding OpenSettingsCommand}"/>
+
+                        <Grid Grid.Row="1"
+                              VerticalOptions="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                            </Grid.ColumnDefinitions>
+                            <Button CornerRadius="25"
+                                    Command="{Binding ShotCommand}"
+                                    BackgroundColor="White"/>
+                            <!--<Frame CornerRadius="25"
+                                   HasShadow="False"/>-->
+                        </Grid>
+                        <Button Text="Gallery"
+                                Grid.Row="2"
+                                TextColor="White"
+                                VerticalOptions="Center"
+                                Command="{Binding OpenGalleryCommand}"/>
+                    </Grid>
+                </Frame>
+            </Grid>
+
+            <Frame BackgroundColor="{Binding LostConnectionBackGround}"
+                   IsVisible="{Binding ShowConnectionLostVisible}"
+                   VerticalOptions="Start"
+                   Margin="30,0"
+                   CornerRadius="0">
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Connection Lost"/>
+                    <Button Text="Reconnect"
+                            TextColor="White"
+                            Command="{Binding ReStartConnectionCommand}"/>
+                </StackLayout>
+            </Frame>
+
+        </Grid>
+        
+
+        <!--<StackLayout>
+            <Button Text="CheckForConnect"
                         Clicked="Button_OnClicked"/>
 
-                <Label x:Name="StatusLabel"/>
+            <Label x:Name="StatusLabel"/>
 
-                <Label x:Name="BatteryLabel"/>
+            <Label x:Name="BatteryLabel"/>
 
-                <Button Text="Shot"
+            <Button Text="Shot"
                         Clicked="Shot_OnClicked"/>
 
-                <Label x:Name="shotStatus"/>
+            <Label x:Name="shotStatus"/>
 
-                <Label x:Name="imageUrl"/>
+            <Label x:Name="imageUrl"/>
 
-                <Button Text="Sphere"
+            <Button Text="Sphere"
                         Clicked="OpenSphere_OnClicked"/>
 
-                <Image x:Name="image"
+            <Image x:Name="image"
                        VerticalOptions="CenterAndExpand"
                        HorizontalOptions="CenterAndExpand"/>
 
-                
-
-            </StackLayout>
-        </ScrollView>
+        </StackLayout>-->
     </ContentPage.Content>
 </ContentPage>
